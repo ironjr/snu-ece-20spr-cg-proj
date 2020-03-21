@@ -1,0 +1,3 @@
+/home/ironjr/workspace/20spr_graphics/hw1/problem1/CMakeFiles/rebuild_cache.dir
+/home/ironjr/workspace/20spr_graphics/hw1/problem1/CMakeFiles/main.dir
+/home/ironjr/workspace/20spr_graphics/hw1/problem1/CMakeFiles/edit_cache.dir
