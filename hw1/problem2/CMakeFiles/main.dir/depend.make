@@ -6,6 +6,7 @@ CMakeFiles/main.dir/glad/src/glad.c.o: glad/include/KHR/khrplatform.h
 CMakeFiles/main.dir/glad/src/glad.c.o: glad/include/glad/glad.h
 
 CMakeFiles/main.dir/main.cpp.o: gameobjects.h
+CMakeFiles/main.dir/main.cpp.o: interfaces.h
 CMakeFiles/main.dir/main.cpp.o: main.cpp
 CMakeFiles/main.dir/main.cpp.o: math_utils.h
 CMakeFiles/main.dir/main.cpp.o: shader.h

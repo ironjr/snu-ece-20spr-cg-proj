@@ -7,6 +7,7 @@ CMakeFiles/main.dir/glad/src/glad.c.o
  glad/include/glad/glad.h
 CMakeFiles/main.dir/main.cpp.o
  /home/ironjr/workspace/20spr_graphics/hw1/problem2/gameobjects.h
+ /home/ironjr/workspace/20spr_graphics/hw1/problem2/interfaces.h
  /home/ironjr/workspace/20spr_graphics/hw1/problem2/main.cpp
  /home/ironjr/workspace/20spr_graphics/hw1/problem2/math_utils.h
  /home/ironjr/workspace/20spr_graphics/hw1/problem2/shader.h

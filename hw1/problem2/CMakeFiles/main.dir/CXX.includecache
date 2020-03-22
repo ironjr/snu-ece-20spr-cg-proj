@@ -12,6 +12,10 @@ glm/glm.hpp
 math_utils.h
 /home/ironjr/workspace/20spr_graphics/hw1/problem2/math_utils.h
 
+/home/ironjr/workspace/20spr_graphics/hw1/problem2/interfaces.h
+glm/glm.hpp
+-
+
 /home/ironjr/workspace/20spr_graphics/hw1/problem2/main.cpp
 glad/glad.h
 -
@@ -23,14 +27,16 @@ glm/gtx/transform.hpp
 -
 glm/gtc/type_ptr.hpp
 -
-shader.h
-/home/ironjr/workspace/20spr_graphics/hw1/problem2/shader.h
-gameobjects.h
-/home/ironjr/workspace/20spr_graphics/hw1/problem2/gameobjects.h
 iostream
 -
 vector
 -
+shader.h
+/home/ironjr/workspace/20spr_graphics/hw1/problem2/shader.h
+gameobjects.h
+/home/ironjr/workspace/20spr_graphics/hw1/problem2/gameobjects.h
+interfaces.h
+/home/ironjr/workspace/20spr_graphics/hw1/problem2/interfaces.h
 
 /home/ironjr/workspace/20spr_graphics/hw1/problem2/math_utils.h
 iostream
