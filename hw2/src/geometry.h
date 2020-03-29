@@ -20,12 +20,14 @@ class Geometry
 public:
     unsigned int VAO;
     unsigned int VBO;
+    unsigned int EBO;
+    bool hasEBO;
 
     std::string name;
     std::vector<std::string> fieldNames;
-    std::map<std::string, unsigned int> fieldWidths;
-    std::vector<unsigned int> vertexIndices;
-    unsigned int numVertices;
+    std::map<std::string, GLsizei> fieldWidths;
+    GLsizei numVertices;
+    GLsizei numVertexDataEntries;
 
     Geometry(const char *filePath)
     {
@@ -44,30 +46,53 @@ public:
 
         // parse vertex json
         this->name = vertexJson[std::string("name")].get<std::string>();
-        this->vertexIndices = vertexJson[std::string("indices")].get< std::vector<unsigned int> >();
         this->fieldNames = vertexJson[std::string("field_names")].get< std::vector<std::string> >();
-        this->fieldWidths = vertexJson[std::string("field_widths")].get< std::map<std::string, unsigned int> >();
-        this->data = vertexJson[std::string("data")].get< std::vector<float> >();
+        this->fieldWidths = vertexJson[std::string("field_widths")].get< std::map<std::string, GLsizei> >();
+        this->vertexData = vertexJson[std::string("data")].get< std::vector<float> >();
+        this->indexData = vertexJson[std::string("indices")].get< std::vector<unsigned int> >();
+        this->hasEBO = this->indexData.size() != 0;
 
-        unsigned int stride = 0;
+        GLsizei stride = 0;
         for (auto it = this->fieldWidths.begin(); it != this->fieldWidths.end(); ++it)
         {
-            stride += (unsigned int)it->second;
+            stride += (GLsizei)it->second;
         }
-        if (this->data.size() % stride != 0)
+        if (this->vertexData.size() % stride != 0)
         {
             throw std::runtime_error("ERROR::GEOMETRY::INVALID_VERTEX_DATA");
         }
-        this->numVertices = this->data.size() / stride;
+        this->numVertexDataEntries = (GLsizei)this->vertexData.size() / stride;
+		this->numVertices = this->hasEBO
+            ? (GLsizei)this->indexData.size()
+            : this->numVertexDataEntries;
 
-        // generate VAO and VBO
+        // Generate VAO and VBO
         glGenVertexArrays(1, &(this->VAO));
         glBindVertexArray(this->VAO);
 
         glGenBuffers(1, &(this->VBO));
         glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
-        glBufferData(GL_ARRAY_BUFFER, this->data.size() * sizeof(float), &(this->data[0]), GL_STATIC_DRAW);
+        glBufferData(
+            GL_ARRAY_BUFFER,
+            this->vertexData.size() * sizeof(float),
+            &(this->vertexData[0]),
+            GL_STATIC_DRAW
+        );
 
+        // Generate EBO if index data exists
+        if (this->hasEBO)
+        {
+            glGenBuffers(1, &EBO);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+            glBufferData(
+                GL_ELEMENT_ARRAY_BUFFER,
+                this->indexData.size() * sizeof(unsigned int),
+                &(this->indexData[0]),
+                GL_STATIC_DRAW
+            );
+        }
+
+        // Assign vertex attributes to VAO
         int attribID = 0;
         unsigned int offset = 0;
         for (auto it = this->fieldNames.begin(); it != this->fieldNames.end(); ++it)
@@ -88,18 +113,23 @@ public:
         }
 
         glBindVertexArray(0);
-
-        // TODO generate EBO
     }
 
-    float *getDataArray(unsigned int &size)
+    float *getVertexDataArray(GLsizei &size)
     {
-        size = this->data.size();
-        return &(this->data[0]);
+        size = (GLsizei)(this->vertexData.size());
+        return &(this->vertexData[0]);
+    }
+
+    unsigned int *getIndexDataArray(GLsizei &size)
+    {
+        size = (GLsizei)(this->indexData.size());
+        return &(this->indexData[0]);
     }
 
 private:
-    std::vector<float> data;
+    std::vector<unsigned int> indexData;
+    std::vector<float> vertexData;
 };
 }
 

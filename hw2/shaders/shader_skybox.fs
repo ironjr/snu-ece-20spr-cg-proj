@@ -7,6 +7,7 @@ uniform float mixratio;
 uniform samplerCube cubemap1;
 uniform samplerCube cubemap2;
 
+
 void main()
 {   
     // mix two texture

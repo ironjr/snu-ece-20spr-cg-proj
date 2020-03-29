@@ -37,6 +37,7 @@ public:
 
         for (unsigned int i = 0; i < faces.size(); ++i)
         {
+			stbi_set_flip_vertically_on_load(false);
             unsigned char *data = stbi_load(
                 faces[i].c_str(),
                 &(this->width), &(this->height), &(this->channels),

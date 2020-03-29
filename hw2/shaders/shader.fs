@@ -9,8 +9,10 @@ uniform sampler2D tex;
 
 void main()
 {
-    // fill in
-    // Hint) you can ignore transparent texture pixel by 
-    // if(color.a < 0.5){discard;}
+    // Ignore transparent texture pixel by 
     FragColor = texture(tex, TexCoord);
+    if (FragColor.a < 0.5)
+    {
+        discard;
+    }
 }
