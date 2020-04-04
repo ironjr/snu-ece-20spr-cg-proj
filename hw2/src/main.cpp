@@ -233,10 +233,6 @@ int main()
 			model = glm::translate(model, grassPositions[i]);
             glm::vec3 deltaPos = currentCamera->position - grassPositions[i];
             float deltaAngle = glm::degrees(glm::atan(deltaPos.x, deltaPos.z));
-            if (i == 0)
-            {
-                printf("%3.3f  %3.3f  --  %3.3f\n", deltaPos.z, deltaPos.x, deltaAngle);
-            }
             model = glm::rotate(
                 model,
                 glm::radians(deltaAngle), // yaw
@@ -320,7 +316,7 @@ void processInput(GLFWwindow *window)
         --moveUp;
     }
     
-    // Sprint
+    // Sprint with shift key.
     int sprint = 0;
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
     {
@@ -338,29 +334,51 @@ void processInput(GLFWwindow *window)
         --moreDay;
     }
 
+    // Camera interpolation with Quaternions.
+    bool saveCurrentTransform = false;
+    bool returnToCheckpointEuler = false;
+    bool returnToCheckpointQuat = false;
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+    {
+        saveCurrentTransform = true;
+    }
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+    {
+        returnToCheckpointEuler = true;
+    }
+    if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
+    {
+        returnToCheckpointQuat = true;
+    }
+
     // Update the commands.
     cmd.moveForward = moveForward;
     cmd.moveRight = moveRight;
     cmd.moveUp = moveUp;
     cmd.sprint = sprint;
     cmd.moreDay = moreDay;
+
+    cmd.saveCurrentTransform = saveCurrentTransform;
+    cmd.returnToCheckpointEuler = returnToCheckpointEuler;
+    cmd.returnToCheckpointQuat = returnToCheckpointQuat;
 }
 
 // GLFW: Whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-    // Make sure the viewport matches the new window dimensions; note that width and
-    // height will be significantly larger than specified on retina displays.
+    // Make sure the viewport matches the new window dimensions; note that
+    // width and height will be significantly larger than specified on retina
+    // displays.
     glViewport(0, 0, width, height);
 }
-
 
 // GLFW: Whenever the mouse moves, this callback is called
 // -------------------------------------------------------
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
-    // Calculate how much cursor have moved, rotate camera proportional to the value, using processMouseMovement.
+    // Calculate how much cursor have moved, rotate camera proportional to the
+    // value, using processMouseMovement.
     float xoffset = (float)xpos - cmd.lastX;
     float yoffset = cmd.lastY - (float)ypos;
     cmd.lastX = (float)xpos;

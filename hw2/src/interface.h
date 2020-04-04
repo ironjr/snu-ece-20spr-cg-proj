@@ -16,6 +16,10 @@ struct Commands
 	float lastX = SCR_WIDTH * 0.5f;
 	float lastY = SCR_HEIGHT * 0.5f;
 
+    bool saveCurrentTransform = false;
+    bool returnToCheckpointEuler = false;
+    bool returnToCheckpointQuat = false;
+
     void reset()
     {
         this->moveForward = 0;
@@ -23,6 +27,10 @@ struct Commands
 		this->moveUp = 0;
         this->sprint = 0;
 		this->moreDay = 0;
+
+		this->saveCurrentTransform = false;
+		this->returnToCheckpointEuler = false;
+		this->returnToCheckpointQuat = false;
     }
 };
 }

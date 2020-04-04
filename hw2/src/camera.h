@@ -4,7 +4,10 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
 
+#include <iostream>
+#include <iomanip>
 #include <stdexcept>
 #include <vector>
 
@@ -44,7 +47,7 @@ const float DEFAULT_CAMERA_NEAR                =   0.1f;
 const float DEFAULT_CAMERA_FAR                 = 100.0f;
 
 const float DEFAULT_CAMERA_ZOOM                =  45.0f; // (FOV)
-const float DEFAULT_CAMERA_MAX_ZOOM            = 135.0f;
+const float DEFAULT_CAMERA_MAX_ZOOM            = 170.0f;
 const float DEFAULT_CAMERA_MIN_ZOOM            =  10.0f;
 const float DEFAULT_CAMERA_ZOOM_SENSITIVITY    =   1.0f;
 
@@ -89,8 +92,8 @@ public:
     {
         this->position = position;
         this->cameraUp = glm::normalize(up);
-        this->cameraRight =
-            glm::normalize(glm::cross(this->cameraFront, this->cameraUp));
+        this->cameraRight
+            = glm::normalize(glm::cross(this->cameraFront, this->cameraUp));
         this->rotation = glm::vec3(pitch, yaw, roll);
         this->mode = mode;
     }
@@ -111,8 +114,8 @@ public:
     {
         this->position = glm::vec3(posX, posY, posZ);
         this->cameraUp = glm::normalize(glm::vec3(upX, upY, upZ));
-        this->cameraRight =
-            glm::normalize(glm::cross(this->cameraFront, this->cameraUp));
+        this->cameraRight
+            = glm::normalize(glm::cross(this->cameraFront, this->cameraUp));
         this->rotation = glm::vec3(pitch, yaw, roll);
         this->mode = mode;
     }
@@ -158,24 +161,24 @@ public:
         }
         switch (direction)
         {
-        case (CameraMovement::FORWARD):
+        case CameraMovement::FORWARD:
             this->position += deltaTime * speed * this->cameraFront;
             break;
-        case (CameraMovement::BACKWARD):
+        case CameraMovement::BACKWARD:
             this->position -= deltaTime * speed * this->cameraFront;
             break;
-        case (CameraMovement::LEFT):
+        case CameraMovement::LEFT:
             this->position -= deltaTime * speed
                 * glm::normalize(glm::cross(this->cameraFront, this->cameraUp));
             break;
-        case (CameraMovement::RIGHT):
+        case CameraMovement::RIGHT:
             this->position += deltaTime * speed
                 * glm::normalize(glm::cross(this->cameraFront, this->cameraUp));
             break;
-        case (CameraMovement::UP):
+        case CameraMovement::UP:
             this->position += deltaTime * speed * this->cameraUp;
             break;
-        case (CameraMovement::DOWN):
+        case CameraMovement::DOWN:
             this->position -= deltaTime * speed * this->cameraUp;
             break;
         default:
@@ -202,7 +205,9 @@ public:
             if (pitch < -89.0f)
                 pitch = -89.0f;
         }
-        yaw = glm::mod(yaw + 360.0f, 360.0f);
+        yaw = glm::mod(glm::mod(yaw, 360.0f) + 360.0f, 360.0f);
+        if (yaw > 180.0f)
+            yaw -= 360.0f;
         this->rotation.x = pitch;
         this->rotation.y = yaw;
 
@@ -225,20 +230,56 @@ public:
         this->zoom = zoom;
     }
 
+    void updateOrientation(glm::vec3 eulerAngle)
+    {
+        this->rotation = eulerAngle;
+        this->updateCameraVectors();
+        
+        // Log the camera right vector
+        std::cout << std::setw(7) << std::setprecision(3)
+            << this->cameraRight.x << "  "
+            << this->cameraRight.y << "  "
+            << this->cameraRight.z << std::endl;
+    }
+
+    void updateOrientation(glm::quat quaternion)
+	{
+		this->cameraFront = quaternion * glm::vec3(1.0f, 0.0f, 0.0f);
+        this->cameraRight = quaternion * glm::vec3(0.0f, 0.0f, 1.0f);
+        this->cameraUp = quaternion * glm::vec3(0.0f, 1.0f, 0.0f);
+
+        // Log the camera right vector
+		std::cout << std::setw(7) << std::setprecision(3)
+			<< this->cameraRight.x << "  "
+			<< this->cameraRight.y << "  "
+			<< this->cameraRight.z << std::endl;
+	}
+
 private:
     // Calculates the front vector from the Camera's (updated) Euler Angles.
     void updateCameraVectors()
     {
-        // We do not care about the roll for now.
         float pitch = this->rotation.x;
         float yaw = this->rotation.y;
-        // float roll = this->rotation.z;
+        float roll = this->rotation.z;
+
         float cosp = cos(glm::radians(pitch));
+        float sinp = sin(glm::radians(pitch));
+        float cosy = cos(glm::radians(yaw));
+        float siny = sin(glm::radians(yaw));
+        float cosr = cos(glm::radians(roll));
+        float sinr = sin(glm::radians(roll));
+
+        // Rotations are applied in the order of yaw -> pitch -> roll.
         this->cameraFront = glm::normalize(glm::vec3(
-            cos(glm::radians(yaw)) * cosp,
-            sin(glm::radians(pitch)),
-            sin(glm::radians(yaw)) * cosp
+            cosy * cosp * cosr - sinp * sinr,
+            cosy * cosp * sinr + sinp * cosr,
+            siny * cosp
         ));
+        this->cameraRight
+            = glm::normalize(glm::cross(this->cameraFront, this->worldUp));
+        this->cameraUp
+            = glm::cross(this->cameraRight, this->cameraFront);
     }
 };
 }
