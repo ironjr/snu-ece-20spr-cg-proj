@@ -13,6 +13,7 @@ using json = nlohmann::json;
 #include <iostream>
 #include <stdexcept>
 
+
 namespace engine
 {
 class Geometry
@@ -113,6 +114,14 @@ public:
         }
 
         glBindVertexArray(0);
+    }
+
+    ~Geometry()
+    {
+        glDeleteVertexArrays(1, &(this->VAO));
+        glDeleteBuffers(1, &(this->VBO));
+        if (this->hasEBO)
+            glDeleteBuffers(1, &(this->EBO));
     }
 
     float *getVertexDataArray(GLsizei &size)

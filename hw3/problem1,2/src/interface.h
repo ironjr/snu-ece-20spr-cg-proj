@@ -6,6 +6,8 @@
 
 namespace engine
 {
+constexpr float KEYBOARD_TOGGLE_DELAY = 0.3f; // seconds
+
 struct Commands
 {
     bool firstMouse = true;
@@ -14,13 +16,12 @@ struct Commands
     int moveRight = 0;
     int moveUp = 0;
     int sprint = 0;
-    int moreDay = 0;
 	float lastX = screen.width * 0.5f;
 	float lastY = screen.height * 0.5f;
 
-    bool saveCurrentTransform = false;
-    bool returnToCheckpointEuler = false;
-    bool returnToCheckpointQuat = false;
+    bool splineOuterLineOn = false;
+    bool surfaceFillOn = false;
+
 
     void reset()
     {
@@ -28,11 +29,17 @@ struct Commands
         this->moveRight = 0;
 		this->moveUp = 0;
         this->sprint = 0;
-		this->moreDay = 0;
+    }
 
-		this->saveCurrentTransform = false;
-		this->returnToCheckpointEuler = false;
-		this->returnToCheckpointQuat = false;
+    void resetAll()
+    {
+        this->moveForward = 0;
+        this->moveRight = 0;
+		this->moveUp = 0;
+        this->sprint = 0;
+
+        this->splineOuterLineOn = false;
+        this->surfaceFillOn = false;
     }
 };
 }

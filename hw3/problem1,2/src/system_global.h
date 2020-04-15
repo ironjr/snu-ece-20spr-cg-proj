@@ -6,7 +6,7 @@
 
 
 // Systematic global variables that is required by other engine global variables
-engine::Timer timer;
 engine::ScreenInfo screen;
+engine::Timer timer;
 
 #endif

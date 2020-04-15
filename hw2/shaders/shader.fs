@@ -1,5 +1,4 @@
 #version 330 core
-// TODO: define in/out and uniform variables.
 in vec2 TexCoord;
 
 out vec4 FragColor;

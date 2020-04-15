@@ -46,7 +46,13 @@ int main()
 
     // GLFW: window creation
     // --------------------
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "2019-20239 Jaerin Lee", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(
+        screen.width,
+        screen.height,
+        screen.name.c_str(),
+        NULL,
+        NULL
+    );
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -201,7 +207,7 @@ int main()
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texBox.ID);
         shader.use();
-        shader.setMat4("projection", currentCamera->getProjectionMatrix(SCR_WIDTH, SCR_HEIGHT));
+        shader.setMat4("projection", currentCamera->getProjectionMatrix(screen.width, screen.height));
         shader.setMat4("view", currentCamera->getViewMatrix());
         for (size_t i = 0; i < 10; i++)
         {
@@ -251,7 +257,7 @@ int main()
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_CUBE_MAP, texCubeNightSky.ID);
         skyboxShader.use();
-        skyboxShader.setMat4("projection", currentCamera->getProjectionMatrix(SCR_WIDTH, SCR_HEIGHT));
+        skyboxShader.setMat4("projection", currentCamera->getProjectionMatrix(screen.width, screen.height));
         skyboxShader.setMat4("view", currentCamera->getViewMatrix());
         skyboxShader.setMat4("model", glm::scale(glm::vec3(skyboxScale, skyboxScale, skyboxScale)));
         skyboxShader.setFloat("mixratio", 1.0f - gameManager.envManager->dayRatio);
@@ -268,7 +274,6 @@ int main()
     }
 
     // optional: De-allocate all resources once they've outlived their purpose:
-
 
     // GLFW: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
