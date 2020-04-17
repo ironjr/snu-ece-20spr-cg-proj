@@ -87,7 +87,6 @@ int main()
         "../shaders/splines_outline/outer_line_shader.vert",
         "../shaders/splines_outline/outer_line_shader.frag"
     );
-    /*
     engine::Shader bezierSurfaceShader(
         "../shaders/bezier_surface/tess.vert",
         "../shaders/bezier_surface/tess.frag",
@@ -95,7 +94,6 @@ int main()
         "../shaders/bezier_surface/tess.tesc",
         "../shaders/bezier_surface/tess.tese"
     );
-    */
 
     // Load requied model and save data to VAO. 
     // Note : loadSplineControlPoints/loadBezierSurfaceControlPoints in
@@ -116,7 +114,6 @@ int main()
         engine::GeometryDataMode::LINE
     );
 
-    /*
     engine::Geometry *surfaceHeart = new engine::Geometry(
         "Bezier Heart",
         "../resources/bezier_surface_data/heart.bpt",
@@ -137,14 +134,16 @@ int main()
         "../resources/bezier_surface_data/sphere.bpt",
         engine::GeometryDataMode::SURFACE
     );
-    */
 
-    glm::vec3 lineSimpleBezierPosition = glm::vec3(-4.0, 0.0, -1.0);
-    glm::vec3 lineSimpleBSplinePosition = glm::vec3(-2.4, 0.0, -1.0);
-    glm::vec3 lineSimpleCatmullRomPosition = glm::vec3(-0.8, 0.0, -1.0);
-    glm::vec3 lineLetterUBezierPosition = glm::vec3(1.0, -1.8, -1.0);
-    glm::vec3 lineComplexBSplinePosition = glm::vec3(3.0, 0.0, -1.0);
-    glm::vec3 lineComplexCatmullRomPosition = glm::vec3(5.0, 0.0, -1.0);
+
+    // World configuration
+    // -------------------
+    glm::vec3 lineSimpleBezierPosition = glm::vec3(-4.0f, 0.0f, -1.0f);
+    glm::vec3 lineSimpleBSplinePosition = glm::vec3(-2.4f, 0.0f, -1.0f);
+    glm::vec3 lineSimpleCatmullRomPosition = glm::vec3(-0.8f, 0.0f, -1.0f);
+    glm::vec3 lineLetterUBezierPosition = glm::vec3(0.6f, -0.5f, -1.0f);
+    glm::vec3 lineComplexBSplinePosition = glm::vec3(3.0f, 0.0f, -1.0f);
+    glm::vec3 lineComplexCatmullRomPosition = glm::vec3(5.0f, 0.0f, -1.0f);
 
     struct SplineObject
     {
@@ -159,13 +158,32 @@ int main()
         { lineSimpleGeometry, lineSimpleBezierPosition, glm::vec3(1.0f), GL_LINE_STRIP_ADJACENCY, GL_LINE_STRIP, 0 },
         { lineSimpleGeometry, lineSimpleBSplinePosition, glm::vec3(1.0f), GL_LINE_STRIP_ADJACENCY, GL_LINE_STRIP, 1 },
         { lineSimpleGeometry, lineSimpleCatmullRomPosition, glm::vec3(1.0f), GL_LINE_STRIP_ADJACENCY, GL_LINE_STRIP, 2 },
-        { lineLetterUGeometry, lineLetterUBezierPosition, glm::vec3(0.2f), GL_LINES_ADJACENCY, GL_LINE_STRIP, 0 },
+        { lineLetterUGeometry, lineLetterUBezierPosition, glm::vec3(0.25f), GL_LINES_ADJACENCY, GL_LINE_STRIP, 0 },
         { lineComplexGeometry, lineComplexBSplinePosition, glm::vec3(0.8f), GL_LINE_STRIP_ADJACENCY, GL_LINE_STRIP, 1 },
         { lineComplexGeometry, lineComplexCatmullRomPosition, glm::vec3(0.8f), GL_LINE_STRIP_ADJACENCY, GL_LINE_STRIP, 2 }
     };
     std::vector<std::string> subroutineNames = {
         "interpBezier", "interpBSpline", "interpCatmullRomUniform",
         "interpCatmullRomCentripetal", "interpCatmullRomChordal"
+    };
+
+    glm::vec3 surfaceHeartPosition = glm::vec3(-2.0f, 1.5f, -0.5f);
+    glm::vec3 surfaceTeapotPosition = glm::vec3(0.4f, 1.0f, -0.6f);
+    glm::vec3 surfaceGumboPosition = glm::vec3(2.0f, 1.0f, 0.0f);
+    glm::vec3 surfaceSpherePosition = glm::vec3(6.0f, 1.5f, -0.6f);
+
+    struct MeshObject
+    {
+        engine::Geometry *geometry;
+        glm::vec3 position;
+        glm::quat rotation;
+        glm::vec3 scale;
+    };
+    std::vector<MeshObject> meshObjects = {
+        { surfaceHeart, surfaceHeartPosition, glm::quat(), glm::vec3(0.2f) },
+        { surfaceTeapot, surfaceTeapotPosition, glm::angleAxis(glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)), glm::vec3(0.4f) },
+        { surfaceGumbo, surfaceGumboPosition, glm::angleAxis(glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)), glm::vec3(0.1f) },
+        { surfaceSphere, surfaceSpherePosition, glm::quat(), glm::vec3(0.2f) }
     };
 
     // Render loop
@@ -211,8 +229,9 @@ int main()
             splineShader.use();
             splineShader.setMat4("projection", projection);
             splineShader.setMat4("view", view);
-            glm::mat4 model = glm::scale(obj.scale);
-            model = glm::translate(model, obj.position);
+            glm::mat4 scale = glm::scale(obj.scale);
+            glm::mat4 translate = glm::translate(obj.position);
+            glm::mat4 model = translate * scale;
             splineShader.setMat4("model", model);
             
             GLuint subroutineIndex = glGetSubroutineIndex(
@@ -239,11 +258,69 @@ int main()
             }
         }
 
-        // TODO : Render Bezier surfaces using tessellation shader.
-        
+        // Render Bezier surfaces using tessellation shader.
+        bezierSurfaceShader.use();
+        bezierSurfaceShader.setMat4("projection", projection);
+        bezierSurfaceShader.setMat4("view", view);
 
+        for (const auto &obj : meshObjects)
+        {
+            glm::mat4 scale = glm::scale(obj.scale);
+            glm::mat4 translate = glm::translate(obj.position);
+            glm::mat4 rotate = glm::mat4_cast(obj.rotation);
+            glm::mat4 model = translate * rotate * scale;
+            bezierSurfaceShader.setMat4("model", model);
+
+            // TODO : Discard models out of camera?
+
+            // Control tessellation quality based on the distance from the camera
+            float dist = glm::distance(currentCamera->position, obj.position);
+
+            float outer02;
+            float outer13;
+            float inner0;
+            float inner1;
+            if (dist > 10.0f)
+            {
+                outer02 = 4.0f;
+                outer13 = 4.0f;
+                inner0 = 2.0f;
+                inner1 = 2.0f;
+            }
+            else if (dist > 5.0f)
+            {
+                outer02 = 6.0f;
+                outer13 = 6.0f;
+                inner0 = 4.0f;
+                inner1 = 4.0f;
+            }
+            else if (dist > 2.0f)
+            {
+                outer02 = 8.0f;
+                outer13 = 8.0f;
+                inner0 = 8.0f;
+                inner1 = 8.0f;
+            }
+            else
+            {
+                outer02 = 12.0f;
+                outer13 = 12.0f;
+                inner0 = 12.0f;
+                inner1 = 12.0f;
+            }
+            bezierSurfaceShader.setVec4("tessLevel", glm::vec4(outer02, outer13, inner0, inner1));
+
+            glBindVertexArray(obj.geometry->VAO);
+            glPatchParameteri(GL_PATCH_VERTICES, 16);
+            glDrawArrays(GL_PATCHES, 0, obj.geometry->numVertices);
+        }
+        glPolygonMode(GL_FRONT_AND_BACK, cmd.surfaceFillOn ? GL_FILL : GL_LINE);
+
+        // Log camera position.
         std::cout << std::setw(7) << std::setprecision(3)
-            << currentCamera->position.x << "  " << currentCamera->position.y << "  " << currentCamera->position.z << std::endl;
+            << currentCamera->position.x << "  "
+            << currentCamera->position.y << "  "
+            << currentCamera->position.z << std::endl;
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -255,18 +332,17 @@ int main()
     free(lineLetterUGeometry);
     free(lineComplexGeometry);
 
-    /*
     free(surfaceHeart);
     free(surfaceGumbo);
     free(surfaceTeapot);
     free(surfaceSphere);
-    */
 
     // GLFW: Terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
     glfwTerminate();
     return 0;
 }
+
 
 // Process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
@@ -349,6 +425,7 @@ void processInput(GLFWwindow *window)
     cmd.surfaceFillOn = surfaceFillToggle ? !cmd.surfaceFillOn : cmd.surfaceFillOn;
 }
 
+
 // GLFW: Whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -381,6 +458,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
     cmd.lastY = (float)ypos;
     gameManager.processMouseMovement(xoffset, yoffset);
 }
+
 
 // GLFW: Whenever the mouse scroll wheel scrolls, this callback is called
 // ----------------------------------------------------------------------

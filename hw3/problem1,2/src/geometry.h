@@ -32,6 +32,7 @@ public:
     std::vector<std::string> fieldNames;
     std::map<std::string, GLsizei> fieldWidths;
     GLsizei numVertices;
+    GLsizei numPatches;
     GLsizei numVertexDataEntries;
     GLsizei recordSize;
 
@@ -67,8 +68,7 @@ public:
                 this->initialize();
                 break;
             case GeometryDataMode::SURFACE:
-                // TODO
-                loadBezierSurfaceControlPoints(std::string(filePath));
+                loadBezierSurfaceControlPoints(std::string(filePath), this->numPatches, this->numVertices, this->vertexData);
                 this->fieldNames.push_back(std::string("position"));
                 this->fieldWidths["position"] = (GLsizei)3;
                 this->hasEBO = false;

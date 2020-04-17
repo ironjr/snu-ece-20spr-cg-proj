@@ -1,11 +1,16 @@
 #version 410 core
 
-in vec3 vColor;
+// in vec3 vNormal;
+in vec3 fColor;
 
 out vec4 FragColor;
 
 
 void main()
 {   
-    FragColor = vec4(vColor, 1.0);
+    // vec3 normal = normalize(vNormal);
+    // float intensity = abs(normal.z);
+    //
+    // fColor *= intensity;
+    FragColor = vec4(fColor, 1.0);
 }
