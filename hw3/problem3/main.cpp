@@ -1,21 +1,23 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "shader.h"
-#include "class.h"
-
 #include <iostream>
 #include <cmath>
 #include <vector>
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+#include "shader.h"
+#include "class.h"
 
-// settings
+
+void framebuffer_size_callback(GLFWwindow *window, int width, int height);
+void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
+
+
+// Settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
-// camera
+// Camera
 const GLfloat distance = 7.f;
 const GLfloat theta = atan2(1.f, 0.7f);
 const glm::mat4 modelMatrix = glm::mat4(1.0);
@@ -24,14 +26,15 @@ GLfloat phi = 0.f;
 glm::vec3 cameraPosition = distance * glm::vec3(0.f, glm::cos(theta), glm::sin(theta));
 glm::mat4 viewMatrix = glm::lookAt(cameraPosition, glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
 
-// light
+// Light
 const glm::vec3 lightPosition(10.0, 10.0, 10.0);
 const glm::vec3 lightColor(0.3, 0.7, 0.9);
 
-// object
+// Object
 const glm::vec3 objectColor(0.9, 0.7, 0.7);
 unsigned int VAO, VBO, EBO;
-object* obj = cube();
+Object *obj = cube();
+
 
 void setCameraPosition()
 {
@@ -52,9 +55,10 @@ void update(GLfloat dt)
 	setViewMatrix();
 }
 
+
 int main()
 {
-	// glfw: initialize and configure
+	// GLFW: Initialize and configure
 	// ------------------------------
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -62,14 +66,12 @@ int main()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 #ifdef __APPLE__
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // uncomment this statement to fix compilation on OS X
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // Uncomment this statement to fix compilation on OS X.
 #endif
 
-
-
-	// glfw window creation
+	// GLFW: Create window
 	// --------------------
-	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Catmull-Clark Subdivision", NULL, NULL);
+	GLFWwindow *window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "2019-20239 Jaerin Lee Catmull-Clark Subdivision", NULL, NULL);
 	if (window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -80,7 +82,7 @@ int main()
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetKeyCallback(window, key_callback);
 
-	// glad: load all OpenGL function pointers
+	// GLAD: Load all OpenGL function pointers
 	// ---------------------------------------
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
@@ -89,17 +91,17 @@ int main()
 	}
 	glEnable(GL_DEPTH_TEST);
 
-	// build and compile our shader program
+	// Build and compile our shader program
 	// ------------------------------------
 	Shader ourShader("shader.vs", "shader.fs"); // you can name your shader files however you like
 
-	// set up vertex data (and buffer(s)) and configure vertex attributes
+	// Set up vertex data (and buffer(s)) and configure vertex attributes
 	// ------------------------------------------------------------------
 
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 	glGenBuffers(1, &EBO);
-	// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
+	// Bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
 	glBindVertexArray(VAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -108,10 +110,10 @@ int main()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * obj->vertexIndices->size(), obj->vertexIndices->data(), GL_STATIC_DRAW);
 
-	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	// Position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(GLfloat)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)(3 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(1);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -120,54 +122,54 @@ int main()
 	glBindVertexArray(0);
 
 	float oldTime = 0.f;
-	// render loop
+	// Render loop
 	// -----------
 	while (!glfwWindowShouldClose(window))
 	{
-		// render
+		// Render
 		// ------
 		glClearColor(0.f, 0.f, 0.f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// render the triangle
+		// Render the triangle
 		ourShader.use();
 		float currentTime = glfwGetTime();
 		float dt = currentTime - oldTime;
 		oldTime = currentTime;
 		update(dt);
 
-		// for vertex shader
+		// For vertex shader
 		ourShader.setMat4("model", modelMatrix);
 		ourShader.setMat4("view", viewMatrix);
 		ourShader.setMat4("projection", projectionMatrix);
 		ourShader.setVec3("worldLightPos", lightPosition);
 		ourShader.setVec3("worldCameraPos", cameraPosition);
 
-		// for pixel shader
+		// For pixel shader
 		ourShader.setVec3("lightColor", lightColor);
 		ourShader.setVec3("objectColor", objectColor);
 
 		glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, obj->vertexIndices->size(), GL_UNSIGNED_INT, 0);
 
-		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
+		// GLFW: Swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		// -------------------------------------------------------------------------------
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
 
-	// optional: de-allocate all resources once they've outlived their purpose:
+	// Optional: De-allocate all resources once they've outlived their purpose:
 	// ------------------------------------------------------------------------
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
 
-	// glfw: terminate, clearing all previously allocated GLFW resources.
+	// GLFW: Terminate, clearing all previously allocated GLFW resources.
 	// ------------------------------------------------------------------
 	glfwTerminate();
 	return 0;
 }
 
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
     {
@@ -178,12 +180,12 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		glDeleteVertexArrays(1, &VAO);
 		glDeleteBuffers(1, &VBO);
 
-		obj = catmull_clark(obj);
+		obj = subdivCatmullClark(obj);
 
 		glGenVertexArrays(1, &VAO);
 		glGenBuffers(1, &VBO);
 		glGenBuffers(1, &EBO);
-		// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
+		// Bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
 		glBindVertexArray(VAO);
 
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -192,10 +194,10 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * obj->vertexIndices->size(), obj->vertexIndices->data(), GL_STATIC_DRAW);
 
-		// position attribute
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+		// Position attribute
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
 		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(GLfloat)));
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)(3 * sizeof(GLfloat)));
 		glEnableVertexAttribArray(1);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -205,11 +207,11 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	}
 }
 
-// glfw: whenever the window size changed (by OS or user resize) this callback function executes
+// GLFW: Whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 {
-	// make sure the viewport matches the new window dimensions; note that width and
+	// Make sure the viewport matches the new window dimensions; note that width and
 	// height will be significantly larger than specified on retina displays.
 	glViewport(0, 0, width, height);
 }

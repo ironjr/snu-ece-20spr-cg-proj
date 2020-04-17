@@ -13,7 +13,6 @@ namespace engine
 class GameManager
 {
 public:
-	// TODO make this default camera reside in the player controller and let this be a pointer to it.
 	Camera *defaultCamera;
 	PlayerController *playerController;
 

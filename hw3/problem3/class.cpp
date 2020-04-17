@@ -1,182 +1,188 @@
 #include "class.h"
 
-object* obj_init()
+#include <iostream>
+
+
+Object *initObject()
 {
-	object* newobj = new object();
-	newobj->v_list = new std::vector<vertex*>();
-	newobj->e_list = new std::vector<edge*>();
-	newobj->f_list = new std::vector<face*>();
-	newobj->vertices = new std::vector<GLfloat>();
-	newobj->vertexIndices = new std::vector<unsigned int>();
-	return newobj;
+	Object *newObj = new Object();
+	newObj->vList = new std::vector<Vertex *>();
+	newObj->eList = new std::vector<Edge *>();
+	newObj->fList = new std::vector<Face *>();
+	newObj->vertices = new std::vector<GLfloat>();
+	newObj->vertexIndices = new std::vector<unsigned int>();
+	return newObj;
 }
 
-vertex* vtx_init()
+Vertex *initVertex()
 {
-	vertex* newvtx = new vertex();
-	newvtx->e_list = new std::vector<edge*>();
-	newvtx->f_list = new std::vector<face*>();
-	newvtx->v_new = NULL;
-	newvtx->idx = -1;
-	return newvtx;
+	Vertex *newVtx = new Vertex();
+	newVtx->eList = new std::vector<Edge *>();
+	newVtx->fList = new std::vector<Face *>();
+	newVtx->vNew = nullptr;
+	newVtx->idx = -1;
+	return newVtx;
 }
 
-edge* edge_init()
+Edge *initEdge()
 {
-	edge* newedge = new edge();
-	newedge->f_list = new std::vector<face*>();
-	newedge->v1 = NULL;
-	newedge->v2 = NULL;
-	newedge->edge_pt = NULL;
-	return newedge;
+	Edge *newEdge = new Edge();
+	newEdge->fList = new std::vector<Face *>();
+	newEdge->v1 = nullptr;
+	newEdge->v2 = nullptr;
+	newEdge->ePoint = nullptr;
+	return newEdge;
 }
 
-face* face_init()
+Face *initFace()
 {
-	face* newface = new face();
-	newface->v_list = new std::vector<vertex*>();
-	newface->e_list = new std::vector<edge*>();
-	newface->face_pt = NULL;
-	return newface;
+	Face *newFace = new Face();
+	newFace->vList = new std::vector<Vertex *>();
+	newFace->eList = new std::vector<Edge *>();
+	newFace->fPoint = nullptr;
+	return newFace;
 }
 
-vertex* add_vertex(object* obj, const coord& coord)
+Vertex *addVertex(Object *obj, const Coord &coord)
 {
-	vertex* newvtx = vtx_init();
-	newvtx->xyz.x = coord.x;
-	newvtx->xyz.y = coord.y;
-	newvtx->xyz.z = coord.z;
-	newvtx->idx = obj->v_list->size();
-	obj->v_list->push_back(newvtx);
-	return newvtx;
+	Vertex *newVtx = initVertex();
+	newVtx->xyz.x = coord.x;
+	newVtx->xyz.y = coord.y;
+	newVtx->xyz.z = coord.z;
+	newVtx->idx = obj->vList->size();
+	obj->vList->push_back(newVtx);
+	return newVtx;
 }
 
-edge* find_edge(object* obj, vertex* v1, vertex* v2)
+Vertex *addVertex(Object *obj, Vertex *vtx)
 {
-	std::vector<edge*>* v1_edgeList = v1->e_list;
-	for(int i = 0; i < v1_edgeList->size(); i++)
+	vtx->idx = obj->vList->size();
+	obj->vList->push_back(vtx);
+	return vtx;
+}
+
+Edge *findEdge(Object *obj, Vertex *v1, Vertex *v2)
+{
+    for (auto const &edge : *(v1->eList))
 	{
-		if((*v1_edgeList)[i]->v1 == v2 || (*v1_edgeList)[i]->v2 == v2)
+		if (edge->v1 == v2 || edge->v2 == v2)
 		{
-			return (*v1_edgeList)[i];
+			return edge;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
-edge* add_edge(object* obj, vertex* v1, vertex* v2)
+Edge *addEdge(Object *obj, Vertex *v1, Vertex *v2)
 {
-	edge* newedge = edge_init();
-	newedge->v1 = v1;
-	newedge->v2 = v2;
-	v1->e_list->push_back(newedge);
-	v2->e_list->push_back(newedge);
-	obj->e_list->push_back(newedge);
-	return newedge;
+	Edge *newEdge = initEdge();
+	newEdge->v1 = v1;
+	newEdge->v2 = v2;
+	v1->eList->push_back(newEdge);
+	v2->eList->push_back(newEdge);
+	obj->eList->push_back(newEdge);
+	return newEdge;
 }
 
-face* add_face(object* obj, const std::vector<int>& vertexIndices)
+Face *addFace(Object *obj, const std::vector<int> &vertexIndices)
 {
-	face* newface = face_init();
+	Face *newFace = initFace();
 	int n = vertexIndices.size();
 	for (int i = 0; i < n; i++)
 	{
-		vertex* v1 = (*(obj->v_list))[vertexIndices[i]];
-		vertex* v2 = (*(obj->v_list))[vertexIndices[(i+1)%n]];
-		v1->f_list->push_back(newface);
+		Vertex *v1 = (*(obj->vList))[vertexIndices[i]];
+		Vertex *v2 = (*(obj->vList))[vertexIndices[(i + 1) % n]];
+		v1->fList->push_back(newFace);
 
-		edge* temp = find_edge(obj, v1, v2);
-		if(!temp) temp = add_edge(obj, v1, v2);
+		Edge *temp = findEdge(obj, v1, v2);
+		if (!temp) temp = addEdge(obj, v1, v2);
 
-		temp->f_list->push_back(newface);
-		newface->e_list->push_back(temp);
-		newface->v_list->push_back(v1);
+		temp->fList->push_back(newFace);
+		newFace->eList->push_back(temp);
+		newFace->vList->push_back(v1);
 	}
-	obj->f_list->push_back(newface);
-	return newface;
+	obj->fList->push_back(newFace);
+	return newFace;
 }
 
-coord add(const coord& ord1, const coord& ord2)
+Coord add(const Coord &coord1, const Coord &coord2)
 {
-	coord temp;
-	temp.x = ord1.x + ord2.x;
-	temp.y = ord1.y + ord2.y;
-	temp.z = ord1.z + ord2.z;
+	Coord temp;
+	temp.x = coord1.x + coord2.x;
+	temp.y = coord1.y + coord2.y;
+	temp.z = coord1.z + coord2.z;
 	return temp;
 }
 
-coord sub(const coord& ord1, const coord& ord2)
+Coord sub(const Coord &coord1, const Coord &coord2)
 {
-	coord temp;
-	temp.x = ord1.x - ord2.x;
-	temp.y = ord1.y - ord2.y;
-	temp.z = ord1.z - ord2.z;
+	Coord temp;
+	temp.x = coord1.x - coord2.x;
+	temp.y = coord1.y - coord2.y;
+	temp.z = coord1.z - coord2.z;
 	return temp;
 }
 
-coord mul(const coord& ord1, GLfloat m)
+Coord mul(const Coord &coord1, GLfloat factor)
 {
-	coord temp;
-	temp.x = ord1.x * m;
-	temp.y = ord1.y * m;
-	temp.z = ord1.z * m;
+	Coord temp;
+	temp.x = coord1.x * factor;
+	temp.y = coord1.y * factor;
+	temp.z = coord1.z * factor;
 	return temp;
 }
 
-coord div(const coord& ord1, GLfloat d)
+Coord div(const Coord &coord1, GLfloat divider)
 {
-	coord temp;
-	temp.x = ord1.x / d;
-	temp.y = ord1.y / d;
-	temp.z = ord1.z / d;
+	Coord temp;
+	temp.x = coord1.x / divider;
+	temp.y = coord1.y / divider;
+	temp.z = coord1.z / divider;
 	return temp;
 }
 
-coord cross(const coord& ord1, const coord& ord2)
+Coord cross(const Coord &coord1, const Coord &coord2)
 {
-	coord temp;
-	temp.x = ord1.y * ord2.z - ord1.z * ord2.y;
-	temp.y = ord1.z * ord2.x - ord1.x * ord2.z;
-	temp.z = ord1.x * ord2.y - ord1.y * ord2.x;
+	Coord temp;
+	temp.x = coord1.y * coord2.z - coord1.z * coord2.y;
+	temp.y = coord1.z * coord2.x - coord1.x * coord2.z;
+	temp.z = coord1.x * coord2.y - coord1.y * coord2.x;
 	return temp;
 }
 
-void setNorm(object* obj)
+void setNorm(Object *obj)
 {
-	for (int i = 0; i < obj->f_list->size(); i++)
+    for (auto const &face : *(obj->fList))
 	{
-		face* temp = (*(obj->f_list))[i];
-		coord v01 = sub((*(temp->v_list))[1]->xyz, (*(temp->v_list))[0]->xyz);
-		coord v12 = sub((*(temp->v_list))[2]->xyz, (*(temp->v_list))[1]->xyz);
-		coord crs = cross(v01, v12);
+		Coord v01 = sub((*(face->vList))[1]->xyz, (*(face->vList))[0]->xyz);
+		Coord v12 = sub((*(face->vList))[2]->xyz, (*(face->vList))[1]->xyz);
+		Coord crs = cross(v01, v12);
 		crs.normalize();
-		temp->norm = crs;
+		face->norm = crs;
 	}
 
-	for (int i = 0; i < obj->v_list->size(); i++)
-	{
-		coord sum;
-		std::vector<face*>* temp = (*(obj->v_list))[i]->f_list;
-		int n = temp->size();
-		for (int j = 0; j < n; j++)
-		{
-			sum.add((*temp)[j]->norm);
-		}
-		sum.div((GLfloat)n);
+    for (auto const &vtx : *(obj->vList))
+    {
+		Coord sum;
+        for (auto const &face : *(vtx->fList))
+        {
+            sum.add(face->norm);
+        }
+		sum.div((GLfloat)(vtx->fList->size()));
 		sum.normalize();
-		(*(obj->v_list))[i]->avg_norm = sum;
+		vtx->avgNorm = sum;
 	}
 }
 
-void aggregate_vertices(object* obj)
+void aggregateVertices(Object *obj)
 {
 	obj->vertices->clear();
 	obj->vertexIndices->clear();
 
-	for (int i = 0; i < obj->v_list->size(); i++)
+    for (auto const &vtx : *(obj->vList))
 	{
-		coord temp_pos = (*(obj->v_list))[i]->xyz;
-		coord temp_norm = (*(obj->v_list))[i]->avg_norm;
+		Coord temp_pos = vtx->xyz;
+		Coord temp_norm = vtx->avgNorm;
 		obj->vertices->push_back(temp_pos.x);
 		obj->vertices->push_back(temp_pos.y);
 		obj->vertices->push_back(temp_pos.z);
@@ -185,102 +191,277 @@ void aggregate_vertices(object* obj)
 		obj->vertices->push_back(temp_norm.z);
 	}
 
-	if (obj->vertices_per_face == 3)
+    // Triangle face.
+	if (obj->numVerticesPerFace == 3)
 	{
-		for (int i = 0; i < obj->f_list->size(); i++)
+        for (auto const &face : *(obj->fList))
 		{
-			std::vector<vertex*>* temp = (*(obj->f_list))[i]->v_list;
-			obj->vertexIndices->push_back((*temp)[0]->idx);
-			obj->vertexIndices->push_back((*temp)[1]->idx);
-			obj->vertexIndices->push_back((*temp)[2]->idx);
+			obj->vertexIndices->push_back((*face->vList)[0]->idx);
+			obj->vertexIndices->push_back((*face->vList)[1]->idx);
+			obj->vertexIndices->push_back((*face->vList)[2]->idx);
 		}
 	}
 
-	else if (obj->vertices_per_face == 4)
+    // Quad face.
+	else if (obj->numVerticesPerFace == 4)
 	{
-		for (int i = 0; i < obj->f_list->size(); i++)
+        for (auto const &face : *(obj->fList))
 		{
-			std::vector<vertex*>* temp = (*(obj->f_list))[i]->v_list;
-			obj->vertexIndices->push_back((*temp)[0]->idx);
-			obj->vertexIndices->push_back((*temp)[1]->idx);
-			obj->vertexIndices->push_back((*temp)[2]->idx);
-			obj->vertexIndices->push_back((*temp)[2]->idx);
-			obj->vertexIndices->push_back((*temp)[3]->idx);
-			obj->vertexIndices->push_back((*temp)[0]->idx);
+			obj->vertexIndices->push_back((*face->vList)[0]->idx);
+			obj->vertexIndices->push_back((*face->vList)[1]->idx);
+			obj->vertexIndices->push_back((*face->vList)[2]->idx);
+			obj->vertexIndices->push_back((*face->vList)[2]->idx);
+			obj->vertexIndices->push_back((*face->vList)[3]->idx);
+			obj->vertexIndices->push_back((*face->vList)[0]->idx);
 		}
 	}
 }
 
-object* cube()
+Object *cube()
 {
-	object* newobj = obj_init();
-	newobj->vertices_per_face = 4;
+	Object *newObj = initObject();
+	newObj->numVerticesPerFace = 4;
 	for (int x = -1; x <= 1; x += 2)
 	{
 		for (int y = -1; y <= 1; y += 2)
 		{
 			for (int z = -1; z <= 1; z += 2)
 			{
-				add_vertex(newobj, coord((GLfloat)x, (GLfloat)y, (GLfloat)z));
+				addVertex(newObj, Coord((GLfloat)x, (GLfloat)y, (GLfloat)z));
 			}
 		}
 	}
-	add_face(newobj, { 0,2,6,4 });
-	add_face(newobj, { 0,4,5,1 });
-	add_face(newobj, { 0,1,3,2 });
-	add_face(newobj, { 2,3,7,6 });
-	add_face(newobj, { 6,7,5,4 });
-	add_face(newobj, { 1,5,7,3 });
 
-	setNorm(newobj);
-
-	aggregate_vertices(newobj);
-
-	return newobj;
+	addFace(newObj, { 0, 2, 6, 4 });
+	addFace(newObj, { 0, 4, 5, 1 });
+	addFace(newObj, { 0, 1, 3, 2 });
+	addFace(newObj, { 2, 3, 7, 6 });
+	addFace(newObj, { 6, 7, 5, 4 });
+	addFace(newObj, { 1, 5, 7, 3 });
+    
+	setNorm(newObj);
+	aggregateVertices(newObj);
+	return newObj;
 }
 
-bool is_holeEdge(edge* e)
+bool isHoleEdge(Edge *e)
 {
-	/* fill in the blank */
-	return true; // delete this line after you fill in the blank.
+    return e->fList->size() == 1;
 }
 
-bool is_holeVertex(vertex* v)
+bool isHoleVertex(Vertex *v)
 {
-	/* fill in the blank */
-	return true; // delete this line after you fill in the blank.
+    return v->fList->size() != v->eList->size();
 }
 
-vertex* face_point(face* f)
+Vertex *facePoint(Face *f)
 {
-	/* fill in the blank */
-	return NULL; // delete this line after you fill in the blank.
+    // Face point already exists.
+    if (f->fPoint)
+        return f->fPoint;
+
+    // New face point is generated as the average of all vertices belongs to
+    // the face.
+    Vertex *newVtx = initVertex();
+    int nVertices = f->vList->size();
+    for (auto const &vtx : *(f->vList))
+    {
+        newVtx->xyz += vtx->xyz;
+    }
+    newVtx->xyz.div(nVertices);
+    f->fPoint = newVtx;
+    return newVtx;
 }
 
-vertex* edge_point(edge* e)
+Vertex *edgePoint(Edge *e)
 {
-	/* fill in the blank */
-	return NULL; // delete this line after you fill in the blank.
+    // Edge point already exists.
+    if (e->ePoint)
+        return e->ePoint;
+
+    // New edge point is generated as the average of all face points of the
+    // faces which the edge belongs to, and the two endpoints of the edge.
+    Vertex *newVtx = initVertex();
+    int nFaces = e->fList->size();
+    for (auto const &face : *(e->fList))
+    {
+        newVtx->xyz += facePoint(face)->xyz;
+    }
+    newVtx->xyz += (e->v1->xyz + e->v2->xyz);
+    newVtx->xyz.div(nFaces + 2);
+    e->ePoint = newVtx;
+    return newVtx;
 }
 
-vertex* vertex_point(vertex* v)
+Vertex *vertexPoint(Vertex *v)
 {
-	/* fill in the blank */
-	return NULL; // delete this line after you fill in the blank.
+    // Precalculated vNew exists.
+    if (v->vNew)
+        return v->vNew;
+
+    Vertex *newVtx = initVertex();
+
+    if (isHoleVertex(v))
+    {
+        // Average of the midpoints of holeEdges which v belongs to and the v.
+        int counter = 1;
+        for (auto const &edge : *(v->eList))
+        {
+            if (isHoleEdge(edge))
+            {
+                ++counter;
+                newVtx->xyz += (edge->v1->xyz + edge->v2->xyz).mul(0.5f);
+            }
+        }
+        newVtx->xyz += v->xyz;
+        newVtx->xyz.div(counter);
+    }
+    else
+    {
+        // Coordinates are evaluated as follows:
+        // n : # faces which v belongs to.
+        // coord := avg_face_points/n + 2*avg_mid_points/n + (n-3)*v_coord/n
+        int n = v->fList->size();
+
+        Coord xyz1;
+        for (auto const &face: *(v->fList))
+        {
+            Vertex *fPoint = facePoint(face);
+            xyz1 += fPoint->xyz;
+        }
+        xyz1.div(n);
+
+        Coord xyz2;
+        for (auto const &edge : *(v->eList))
+        {
+            xyz2 += (edge->v1->xyz + edge->v2->xyz).mul(0.5f);
+        }
+        xyz2.mul(2.0f / n);
+
+        Coord xyz3 = v->xyz * (GLfloat)(n - 3);
+        newVtx->xyz = (xyz1 + xyz2 + xyz3).div((GLfloat)n);
+    }
+    v->vNew = newVtx;
+    return newVtx;
 }
 
-object* catmull_clark(object* obj)
+Object *subdivCatmullClark(Object *obj)
 {
-	object* newobj = obj_init();
-	newobj->vertices_per_face = 4;
+	Object *newObj = initObject();
+	newObj->numVerticesPerFace = obj->numVerticesPerFace;
 
-	/* fill in the blank */
+    for (auto const &face : *(obj->fList))
+    {
+        std::vector<Vertex *> &vList = *(face->vList);
+        int nVertices = vList.size();
 
-	setNorm(newobj);
+        // Triangle faces: 
+        if (nVertices == 3)
+        {
+            {
+                Vertex *a = vList[0];
+                Vertex *b = vList[1];
+                Vertex *c = vList[2];
 
-	aggregate_vertices(newobj);
+                Vertex *vA = vertexPoint(a);
+                Vertex *vB = vertexPoint(b);
+                Vertex *vC = vertexPoint(c);
+                Vertex *eAB = edgePoint(findEdge(obj, a, b));
+                Vertex *eBC = edgePoint(findEdge(obj, b, c));
+                Vertex *eCA = edgePoint(findEdge(obj, c, a));
+                Vertex *f = facePoint(face);
+
+                Vertex *vAn = addVertex(newObj, vA);
+                Vertex *vBn = addVertex(newObj, vB);
+                Vertex *vCn = addVertex(newObj, vC);
+                Vertex *eABn = addVertex(newObj, eAB);
+                Vertex *eBCn = addVertex(newObj, eBC);
+                Vertex *eCAn = addVertex(newObj, eCA);
+                Vertex *fn = addVertex(newObj, f);
+
+                addFace(newObj, { vAn->idx, eABn->idx, fn->idx, eCAn->idx });
+                addFace(newObj, { vBn->idx, eBCn->idx, fn->idx, eABn->idx });
+                addFace(newObj, { vCn->idx, eCAn->idx, fn->idx, eBCn->idx });
+
+                // Debug log
+                std::cout << "Original face points" << std::endl;
+                a->print("A");
+                b->print("B");
+                c->print("C");
+
+                std::cout << "New face points" << std::endl;
+                vA->print("vA");
+                vB->print("vB");
+                vC->print("vC");
+                eAB->print("eAB");
+                eBC->print("eBC");
+                eCA->print("eCA");
+                f->print("fABC");
+
+                std::cout << std::endl;
+            }
+        }
+
+        // Quadrilateral faces:
+        else if (nVertices == 4)
+        {
+            {
+                Vertex *a = vList[0];
+                Vertex *b = vList[1];
+                Vertex *c = vList[2];
+                Vertex *d = vList[3];
+
+                Vertex *vA = vertexPoint(a);
+                Vertex *vB = vertexPoint(b);
+                Vertex *vC = vertexPoint(c);
+                Vertex *vD = vertexPoint(d);
+                Vertex *eAB = edgePoint(findEdge(obj, a, b));
+                Vertex *eBC = edgePoint(findEdge(obj, b, c));
+                Vertex *eCD = edgePoint(findEdge(obj, c, d));
+                Vertex *eDA = edgePoint(findEdge(obj, d, a));
+                Vertex *f = facePoint(face);
+
+                Vertex *vAn = addVertex(newObj, vA);
+                Vertex *vBn = addVertex(newObj, vB);
+                Vertex *vCn = addVertex(newObj, vC);
+                Vertex *vDn = addVertex(newObj, vD);
+                Vertex *eABn = addVertex(newObj, eAB);
+                Vertex *eBCn = addVertex(newObj, eBC);
+                Vertex *eCDn = addVertex(newObj, eCD);
+                Vertex *eDAn = addVertex(newObj, eDA);
+                Vertex *fn = addVertex(newObj, f);
+
+                addFace(newObj, { vAn->idx, eABn->idx, fn->idx, eDAn->idx });
+                addFace(newObj, { vBn->idx, eBCn->idx, fn->idx, eABn->idx });
+                addFace(newObj, { vCn->idx, eCDn->idx, fn->idx, eBCn->idx });
+                addFace(newObj, { vDn->idx, eDAn->idx, fn->idx, eCDn->idx });
+
+                // Debug log
+                std::cout << "Original face points" << std::endl;
+                a->print("A");
+                b->print("B");
+                c->print("C");
+                d->print("D");
+
+                std::cout << "New face points" << std::endl;
+                vA->print("vA");
+                vB->print("vB");
+                vC->print("vC");
+                vD->print("vD");
+                eAB->print("eAB");
+                eBC->print("eBC");
+                eCD->print("eCD");
+                eDA->print("eDA");
+                f->print("fABCD");
+
+                std::cout << std::endl;
+            }
+        }
+    }
+
+	setNorm(newObj);
+	aggregateVertices(newObj);
 
 	delete obj;
-
-	return newobj;
+	return newObj;
 }
