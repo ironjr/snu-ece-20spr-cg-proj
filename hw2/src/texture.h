@@ -1,11 +1,10 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
-#define STB_IMAGE_IMPLEMENTATION   // use of stb functions once and for all
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#define STB_IMAGE_IMPLEMENTATION   // use of stb functions once and for all
 #include "stb_image.h"
 
 #include <string>

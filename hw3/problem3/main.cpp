@@ -31,9 +31,11 @@ const glm::vec3 lightPosition(10.0, 10.0, 10.0);
 const glm::vec3 lightColor(0.3, 0.7, 0.9);
 
 // Object
-const glm::vec3 objectColor(0.9, 0.7, 0.7);
+const glm::vec3 cubeectColor(0.9, 0.7, 0.7);
 unsigned int VAO, VBO, EBO;
-Object *obj = cube();
+Object *cubeObject = cube();
+Object *donutObject = donut();
+Object *obj = donutObject;
 
 
 void setCameraPosition()
@@ -147,7 +149,7 @@ int main()
 
 		// For pixel shader
 		ourShader.setVec3("lightColor", lightColor);
-		ourShader.setVec3("objectColor", objectColor);
+		ourShader.setVec3("cubeectColor", cubeectColor);
 
 		glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, obj->vertexIndices->size(), GL_UNSIGNED_INT, 0);

@@ -80,7 +80,7 @@ int main()
     glEnable(GL_DEPTH_TEST);
 
     // Define normal shader and skybox shader.
-    Shader shader("../shaders/shader.vs", "../shaders/shader.fs"); // you can name your shader files however you like
+    Shader shader("../shaders/shader.vs", "../shaders/shader.fs");
     Shader skyboxShader("../shaders/shader_skybox.vs", "../shaders/shader_skybox.fs");
 
     // Define textures (container, grass, grass_ground) & cubemap textures (day, night)

@@ -14,6 +14,7 @@ Object *initObject()
 	return newObj;
 }
 
+
 Vertex *initVertex()
 {
 	Vertex *newVtx = new Vertex();
@@ -23,6 +24,7 @@ Vertex *initVertex()
 	newVtx->idx = -1;
 	return newVtx;
 }
+
 
 Edge *initEdge()
 {
@@ -34,6 +36,7 @@ Edge *initEdge()
 	return newEdge;
 }
 
+
 Face *initFace()
 {
 	Face *newFace = new Face();
@@ -42,6 +45,7 @@ Face *initFace()
 	newFace->fPoint = nullptr;
 	return newFace;
 }
+
 
 Vertex *addVertex(Object *obj, const Coord &coord)
 {
@@ -54,12 +58,14 @@ Vertex *addVertex(Object *obj, const Coord &coord)
 	return newVtx;
 }
 
+
 Vertex *addVertex(Object *obj, Vertex *vtx)
 {
 	vtx->idx = obj->vList->size();
 	obj->vList->push_back(vtx);
 	return vtx;
 }
+
 
 Edge *findEdge(Object *obj, Vertex *v1, Vertex *v2)
 {
@@ -73,6 +79,7 @@ Edge *findEdge(Object *obj, Vertex *v1, Vertex *v2)
 	return nullptr;
 }
 
+
 Edge *addEdge(Object *obj, Vertex *v1, Vertex *v2)
 {
 	Edge *newEdge = initEdge();
@@ -83,6 +90,7 @@ Edge *addEdge(Object *obj, Vertex *v1, Vertex *v2)
 	obj->eList->push_back(newEdge);
 	return newEdge;
 }
+
 
 Face *addFace(Object *obj, const std::vector<int> &vertexIndices)
 {
@@ -105,6 +113,7 @@ Face *addFace(Object *obj, const std::vector<int> &vertexIndices)
 	return newFace;
 }
 
+
 Coord add(const Coord &coord1, const Coord &coord2)
 {
 	Coord temp;
@@ -113,6 +122,7 @@ Coord add(const Coord &coord1, const Coord &coord2)
 	temp.z = coord1.z + coord2.z;
 	return temp;
 }
+
 
 Coord sub(const Coord &coord1, const Coord &coord2)
 {
@@ -123,6 +133,7 @@ Coord sub(const Coord &coord1, const Coord &coord2)
 	return temp;
 }
 
+
 Coord mul(const Coord &coord1, GLfloat factor)
 {
 	Coord temp;
@@ -131,6 +142,7 @@ Coord mul(const Coord &coord1, GLfloat factor)
 	temp.z = coord1.z * factor;
 	return temp;
 }
+
 
 Coord div(const Coord &coord1, GLfloat divider)
 {
@@ -141,6 +153,7 @@ Coord div(const Coord &coord1, GLfloat divider)
 	return temp;
 }
 
+
 Coord cross(const Coord &coord1, const Coord &coord2)
 {
 	Coord temp;
@@ -149,6 +162,7 @@ Coord cross(const Coord &coord1, const Coord &coord2)
 	temp.z = coord1.x * coord2.y - coord1.y * coord2.x;
 	return temp;
 }
+
 
 void setNorm(Object *obj)
 {
@@ -173,6 +187,7 @@ void setNorm(Object *obj)
 		vtx->avgNorm = sum;
 	}
 }
+
 
 void aggregateVertices(Object *obj)
 {
@@ -217,6 +232,7 @@ void aggregateVertices(Object *obj)
 	}
 }
 
+
 Object *cube()
 {
 	Object *newObj = initObject();
@@ -244,15 +260,67 @@ Object *cube()
 	return newObj;
 }
 
+
+Object *donut()
+{
+    Object *newObj = initObject();
+    newObj->numVerticesPerFace = 4;
+
+    addVertex(newObj, Coord(-1.5f,   0.5f, -1.5f));  // 0
+    addVertex(newObj, Coord(-1.5f,   0.5f,  1.5f));  // 1
+    addVertex(newObj, Coord( 1.5f,   0.5f, -1.5f));  // 2
+    addVertex(newObj, Coord( 1.5f,   0.5f,  1.5f));  // 3
+    addVertex(newObj, Coord(-1.5f,  -0.5f, -1.5f));  // 4
+    addVertex(newObj, Coord(-1.5f,  -0.5f,  1.5f));  // 5
+    addVertex(newObj, Coord( 1.5f,  -0.5f, -1.5f));  // 6
+    addVertex(newObj, Coord( 1.5f,  -0.5f,  1.5f));  // 7
+
+    addVertex(newObj, Coord(-0.75f,  0.5f, -0.75f)); // 8
+    addVertex(newObj, Coord(-0.75f,  0.5f,  0.75f)); // 9
+    addVertex(newObj, Coord( 0.75f,  0.5f, -0.75f)); // 10
+    addVertex(newObj, Coord( 0.75f,  0.5f,  0.75f)); // 11
+    addVertex(newObj, Coord(-0.75f, -0.5f, -0.75f)); // 12
+    addVertex(newObj, Coord(-0.75f, -0.5f,  0.75f)); // 13
+    addVertex(newObj, Coord( 0.75f, -0.5f, -0.75f)); // 14
+    addVertex(newObj, Coord( 0.75f, -0.5f,  0.75f)); // 15
+
+    addFace(newObj, {  0,  1,  9,  8 });
+    addFace(newObj, {  1,  2, 10,  9 });
+    addFace(newObj, {  2,  3, 11, 10 });
+    addFace(newObj, {  3,  0,  8, 11 });
+
+    addFace(newObj, {  4,  5, 13, 12 });
+    addFace(newObj, {  5,  6, 14, 13 });
+    addFace(newObj, {  6,  7, 15, 14 });
+    addFace(newObj, {  7,  8, 12, 15 });
+
+    addFace(newObj, {  0,  1,  5,  4 });
+    addFace(newObj, {  1,  2,  6,  5 });
+    addFace(newObj, {  2,  3,  7,  6 });
+    addFace(newObj, {  3,  0,  4,  7 });
+
+    addFace(newObj, {  8,  9, 13, 12 });
+    addFace(newObj, {  9, 10, 14, 13 });
+    addFace(newObj, { 10, 11, 15, 14 });
+    addFace(newObj, { 11,  8, 12, 15 });
+
+	setNorm(newObj);
+	aggregateVertices(newObj);
+	return newObj;
+}
+
+
 bool isHoleEdge(Edge *e)
 {
     return e->fList->size() == 1;
 }
 
+
 bool isHoleVertex(Vertex *v)
 {
     return v->fList->size() != v->eList->size();
 }
+
 
 Vertex *facePoint(Face *f)
 {
@@ -273,6 +341,7 @@ Vertex *facePoint(Face *f)
     return newVtx;
 }
 
+
 Vertex *edgePoint(Edge *e)
 {
     // Edge point already exists.
@@ -292,6 +361,7 @@ Vertex *edgePoint(Edge *e)
     e->ePoint = newVtx;
     return newVtx;
 }
+
 
 Vertex *vertexPoint(Vertex *v)
 {
@@ -344,6 +414,7 @@ Vertex *vertexPoint(Vertex *v)
     v->vNew = newVtx;
     return newVtx;
 }
+
 
 Object *subdivCatmullClark(Object *obj)
 {

@@ -248,6 +248,7 @@ public:
 
 
 Object *cube();
+Object *donut();
 Object *subdivCatmullClark(Object *obj);
 
 #endif
